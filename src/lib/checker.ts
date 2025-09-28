@@ -14,19 +14,38 @@ async function checkOnce(rapidKey: string, host: string, id: string, server: str
     method: 'GET',
     headers: {
       'x-rapidapi-host': host,
-      'x-rapidapi-key': rapidKey
-    }
+      'x-rapidapi-key': rapidKey,
+    },
   });
+
   const text = await res.text();
-  let data: any = {};
-  try { data = JSON.parse(text); } catch {}
-  const ok = res.ok && data && data.error === false && data.msg === 'id_found';
-  const username = ok && data?.data?.username ? String(data.data.username) : '';
+  let parsed: unknown = {};
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    // leave as {}
+  }
+
+  // narrow to the shape we expect
+  const data = parsed as {
+    error?: boolean;
+    msg?: string;
+    data?: { username?: unknown };
+  } | null;
+
+  const ok = res.ok && !!data && data.error === false && data.msg === 'id_found';
+  const username = ok && data?.data?.username != null ? String(data.data.username) : '';
+
   return { ok, username, raw: text, status: res.status };
 }
 
 /** Mirrors your fetchUsernameTryBoth_ logic */
-export async function checkUser(rapidKey: string, id: string, server: string, host = DEFAULT_HOST): Promise<CheckResult> {
+export async function checkUser(
+  rapidKey: string,
+  id: string,
+  server: string,
+  host = DEFAULT_HOST,
+): Promise<CheckResult> {
   const r1 = await checkOnce(rapidKey, host, String(id).trim(), String(server).trim());
   if (r1.ok) return { ok: true, username: r1.username, mapping: 'E→D', raw: r1.raw, status: r1.status };
 
@@ -43,8 +62,8 @@ export async function validateRapidKey(rapidKey: string, host = DEFAULT_HOST): P
       method: 'GET',
       headers: {
         'x-rapidapi-host': host,
-        'x-rapidapi-key': rapidKey
-      }
+        'x-rapidapi-key': rapidKey,
+      },
     });
     if (res.status === 401 || res.status === 403) return false;
     return true;

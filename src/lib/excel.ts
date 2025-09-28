@@ -8,6 +8,8 @@ export type Row = {
   F_status?: string;
 };
 
+export type Workbook = XLSX.WorkBook;
+
 export function parseWorkbook(file: File) {
   return new Promise<{ workbook: XLSX.WorkBook; firstSheet: string }>((resolve, reject) => {
     const reader = new FileReader();
@@ -28,17 +30,20 @@ export function parseWorkbook(file: File) {
 
 export function sheetToRows(wb: XLSX.WorkBook, sheetName: string): Row[] {
   const ws = wb.Sheets[sheetName];
-  const json = XLSX.utils.sheet_to_json<any>(ws, { header: 1, raw: true }); // 2D array
-  const rows: Row[] = [];
 
+  // With header:1, sheet_to_json returns a 2D array of cell values.
+  const json = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, raw: true });
+
+  const rows: Row[] = [];
+  // Expect header row at index 0; data from row 2+
   for (let i = 1; i < json.length; i++) {
-    const r = json[i] || [];
+    const r = Array.isArray(json[i]) ? json[i] : [];
     rows.push({
-      rowIndex: i + 1,   // Excel row # (header is row 1)
-      C_username: r[2],  // C
-      D_server: r[3],    // D
-      E_id: r[4],        // E
-      F_status: r[5]     // F
+      rowIndex: i + 1,
+      C_username: (r[2] as string | number | undefined)?.toString(),
+      D_server: r[3] as string | number | undefined,
+      E_id: r[4] as string | number | undefined,
+      F_status: (r[5] as string | number | undefined)?.toString(),
     });
   }
   return rows;
@@ -46,7 +51,7 @@ export function sheetToRows(wb: XLSX.WorkBook, sheetName: string): Row[] {
 
 export function writeRowsToSheet(wb: XLSX.WorkBook, sheetName: string, updated: Row[]) {
   const ws = wb.Sheets[sheetName];
-  updated.forEach(row => {
+  updated.forEach((row) => {
     // C (index 2)
     if (typeof row.C_username !== 'undefined') {
       const cell = XLSX.utils.encode_cell({ r: row.rowIndex - 1, c: 2 });
@@ -83,7 +88,7 @@ export function downloadCSV(rows: Row[], outName = 'verified.csv') {
       (r.C_username ?? '').toString().replace(/,/g, ' '),
       (r.D_server ?? '').toString().replace(/,/g, ' '),
       (r.E_id ?? '').toString().replace(/,/g, ' '),
-      (r.F_status ?? '').toString().replace(/,/g, ' ')
+      (r.F_status ?? '').toString().replace(/,/g, ' '),
     ];
     lines.push(fields.join(','));
   }
