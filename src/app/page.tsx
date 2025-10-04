@@ -169,12 +169,34 @@ export default function Page() {
 
   return (
     <main style={{ maxWidth: 960, margin: '32px auto', padding: '0 16px', fontFamily: 'system-ui, sans-serif' }}>
+      
+      {/* 🎥 Video Tutorial FIRST */}
+      <section style={{ marginBottom: 24, padding: 16, border: '1px solid #3a3a3a', borderRadius: 12 }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>🎥 Video Tutorial (Made by CH Lester)</h3>
+        <p style={{ fontSize: 14, opacity: 0.85, marginTop: 6 }}>
+          Watch this step-by-step guide on how to use the MLBB ID Server Verifier:
+        </p>
+        <div style={{ marginTop: 12, borderRadius: 12, overflow: 'hidden', border: '1px solid #3a3a3a' }}>
+          <iframe
+            width="100%"
+            height="480"
+            src="https://www.youtube.com/embed/-zpKBblZ3Bw?si=ezA9X_9gnriBdu1_"
+            title="MLBB Verify Tutorial by CH Lester"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </section>
+
       <h1 style={{ fontSize: 24, fontWeight: 700 }}>MLBB Verify (Excel ⇄ RapidAPI)</h1>
       <p style={{ opacity: 0.85 }}>
         Upload your Excel file, enter your RapidAPI key, and verify MLBB usernames. We’ll write
         Username → <strong>C</strong> and Status → <strong>F</strong>.
       </p>
 
+      {/* --- ALL YOUR ORIGINAL CODE BELOW (UNCHANGED) --- */}
       {/* 1) Key */}
       <section style={{ marginTop: 24, padding: 16, border: '1px solid #3a3a3a', borderRadius: 12 }}>
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>1) RapidAPI key</h3>
